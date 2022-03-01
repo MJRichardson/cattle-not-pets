@@ -44,9 +44,7 @@ jobs:
         with:
           files: 'infra/azure-rg-params.json'
         env:
-          Var1: "value1"
-          Var2.key1: "value2"
-          SECRET: ${{ secrets.SOME_SECRET }}
+          branch: "${{steps.extract_branch.outputs.branch}}"
 
       - uses: azure/arm-deploy@v1
         with:
