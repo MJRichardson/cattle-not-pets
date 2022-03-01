@@ -2,20 +2,19 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "web_server_name": {
-            "type": "String"
-        },
-        "app_service_plan_name": {
-            "defaultValue": "michrich-cattle-not-pets-dev-plan",
+        "branch": {
             "type": "String"
         }
     },
-    "variables": {},
+    "variables": {
+        "web_server_name": "michrich-cattle-not-pets-[parameters('branch')]", 
+        "app_service_plan_name": "michrich-cattle-not-pets-[parameters('branch')]-plan" 
+    },
     "resources": [
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2021-03-01",
-            "name": "[parameters('app_service_plan_name')]",
+            "name": "[variables('app_service_plan_name')]",
             "location": "Australia Southeast",
             "tags": {
                 "OwnerContact": "@michael.richardson"
@@ -44,10 +43,10 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2021-03-01",
-            "name": "[parameters('web_server_name')]",
+            "name": "[variables('web_server_name')]",
             "location": "Australia Southeast",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('app_service_plan_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('app_service_plan_name'))]"
             ],
             "tags": {
                 "OwnerContact": "@michael.richardson"
@@ -57,17 +56,17 @@
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(parameters('web_server_name'), '.azurewebsites.net')]",
+                        "name": "[concat(variables('web_server_name'), '.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('web_server_name'), '.scm.azurewebsites.net')]",
+                        "name": "[concat(variables('web_server_name'), '.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('app_service_plan_name'))]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('app_service_plan_name'))]",
                 "reserved": true,
                 "isXenon": false,
                 "hyperV": false,
@@ -97,10 +96,10 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('web_server_name'), '/ftp')]",
+            "name": "[concat(variables('web_server_name'), '/ftp')]",
             "location": "Australia Southeast",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('web_server_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('web_server_name'))]"
             ],
             "tags": {
                 "OwnerContact": "@michael.richardson"
@@ -112,10 +111,10 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('web_server_name'), '/scm')]",
+            "name": "[concat(variables('web_server_name'), '/scm')]",
             "location": "Australia Southeast",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('web_server_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('web_server_name'))]"
             ],
             "tags": {
                 "OwnerContact": "@michael.richardson"
@@ -127,10 +126,10 @@
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('web_server_name'), '/web')]",
+            "name": "[concat(variables('web_server_name'), '/web')]",
             "location": "Australia Southeast",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('web_server_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('web_server_name'))]"
             ],
             "tags": {
                 "OwnerContact": "@michael.richardson"
@@ -210,10 +209,10 @@
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2021-03-01",
-            "name": "[concat(parameters('web_server_name'), '/', parameters('web_server_name'), '.azurewebsites.net')]",
+            "name": "[concat(variables('web_server_name'), '/', variables('web_server_name'), '.azurewebsites.net')]",
             "location": "Australia Southeast",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('web_server_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('web_server_name'))]"
             ],
             "properties": {
                 "siteName": "",
