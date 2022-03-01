@@ -33,7 +33,20 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az group create -n michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}} -l "Australia Southeast"
+            RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
+            LOCATION="Australia Southeast"
+            if [ $(az group exists --name $RESOURCEGROUPNAME) = false ]; then
+              az group create --name $RESOURCEGROUPNAME --location $LOCATION
+            fi
+            
+      - name: Replace parameters file
+        uses: microsoft/variable-substitution@v1 
+        with:
+          files: 'infra/azure-rg-params.json'
+        env:
+          Var1: "value1"
+          Var2.key1: "value2"
+          SECRET: ${{ secrets.SOME_SECRET }}
 
       - uses: azure/arm-deploy@v1
         with:
