@@ -36,7 +36,7 @@ jobs:
             RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
             LOCATION="Australia Southeast"
             if [ $(az group exists --name $RESOURCEGROUPNAME) = false ]; then
-              az group create --name $RESOURCEGROUPNAME --location $LOCATION
+              az group create --name $RESOURCEGROUPNAME --location '$LOCATION'
             fi
             
       - name: Replace parameters file
