@@ -44,7 +44,7 @@ jobs:
         with:
           files: './infra/azure-rg-params.json'
         env:
-          BRANCH: "${{steps.extract_branch.outputs.branch}}"
+          parameters.branch.value: "${{steps.extract_branch.outputs.branch}}"
 
       - uses: azure/arm-deploy@v1
         with:
