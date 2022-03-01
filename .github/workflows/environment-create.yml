@@ -50,6 +50,7 @@ jobs:
         with:
           resourceGroupName: michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
           template: ./infra/azure-rg.json
+          parameters: ./infra/azure-rg-params.json
           
       - name: Install Octopus CLI 🐙
         uses: OctopusDeploy/install-octopus-cli-action@v1
