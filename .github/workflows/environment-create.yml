@@ -35,6 +35,6 @@ jobs:
           template: ./infra/azure-rg.json
           
       - name: Install Octopus CLI 🐙
-        uses: OctopusDeploy/install-octopus-cli-action@<version>
+        uses: OctopusDeploy/install-octopus-cli-action@v1
         with:
           version: 7.4.3140
