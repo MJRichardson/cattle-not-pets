@@ -42,7 +42,7 @@ jobs:
       - name: Replace parameters file
         uses: microsoft/variable-substitution@v1 
         with:
-          files: 'infra/azure-rg-params.json'
+          files: './infra/azure-rg-params.json'
         env:
           branch: "${{steps.extract_branch.outputs.branch}}"
 
