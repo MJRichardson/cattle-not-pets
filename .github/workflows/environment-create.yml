@@ -31,5 +31,5 @@ jobs:
 
       - uses: azure/arm-deploy@v1
         with:
-          resourceGroupName: michrich-cattle-not-pets-${{}}
-          template: ./azuredeploy.json
+          resourceGroupName: michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
+          template: ./infra/azure-rg.json
