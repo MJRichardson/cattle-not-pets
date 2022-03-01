@@ -8,7 +8,7 @@
     },
     "variables": {
         "web_server_name": "[concat('michrich-cattle-not-pets-', parameters('branch'))]", 
-        "app_service_plan_name": "[concat('michrich-cattle-not-pets-', parameters('branch')], '-plan')]" 
+        "app_service_plan_name": "[concat('michrich-cattle-not-pets-', parameters('branch'), '-plan')]" 
     },
     "resources": [
         {
