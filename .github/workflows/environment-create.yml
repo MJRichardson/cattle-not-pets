@@ -28,8 +28,31 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Create resource group
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
+            LOCATION="Australia Southeast"
+            if [ $(az group exists --name $RESOURCEGROUPNAME) = false ]; then
+              az group create --name $RESOURCEGROUPNAME --location "$LOCATION"
+            fi
+            
+      - name: Replace parameters file
+        uses: microsoft/variable-substitution@v1 
+        with:
+          files: './infra/azure-rg-params.json'
+        env:
+          parameters.branch.value: "${{steps.extract_branch.outputs.branch}}"
 
       - uses: azure/arm-deploy@v1
         with:
           resourceGroupName: michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
           template: ./infra/azure-rg.json
+          parameters: ./infra/azure-rg-params.json
+          
+      - name: Install Octopus CLI 🐙
+        uses: OctopusDeploy/install-octopus-cli-action@v1
+        with:
+          version: 7.4.3140
