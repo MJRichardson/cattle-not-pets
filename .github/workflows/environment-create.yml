@@ -56,3 +56,12 @@ jobs:
         uses: OctopusDeploy/install-octopus-cli-action@v1
         with:
           version: 7.4.3140
+
+      - name: Create Octopus environment
+        env:
+          octopusUrl: "https://michrich.octopus.app/"
+          branch: "${{steps.extract_branch.outputs.branch}}"
+        run: >  
+          octo create-environment --name="${{ env.branch }}" --server=${{ env.octopusUrl }} --space="Dynamic Infra" --apiKey=${{ secrets.OCTOPUS_API_KEY }}
+
+
