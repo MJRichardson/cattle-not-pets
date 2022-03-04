@@ -9,6 +9,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env: 
+  - octopusUrl: "https://michrich.octopus.app/"
+  - octopusSpace: "Dynamic Infra"
+
 jobs:
   create-azure-infrastructure:
     # The type of runner that the job will run on
@@ -31,6 +35,7 @@ jobs:
           
       - name: Create resource group
         uses: azure/CLI@v1
+        id: create-resource-group
         with:
           inlineScript: |
             RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
@@ -38,6 +43,7 @@ jobs:
             if [ $(az group exists --name $RESOURCEGROUPNAME) = false ]; then
               az group create --name $RESOURCEGROUPNAME --location "$LOCATION"
             fi
+            echo "##[set-output name=resourceGroup;]$(echo '$RESOURCEGROUPNAME')"
             
       - name: Replace parameters file
         uses: microsoft/variable-substitution@v1 
@@ -58,10 +64,59 @@ jobs:
           version: 7.4.3140
 
       - name: Create Octopus environment
+        id: create-environment
         env:
-          octopusUrl: "https://michrich.octopus.app/"
           branch: "${{steps.extract_branch.outputs.branch}}"
-        run: >  
-          octo create-environment --name="${{ env.branch }}" --server=${{ env.octopusUrl }} --space="Dynamic Infra" --apiKey=${{ secrets.OCTOPUS_API_KEY }}
+        run: |  
+          octo list-environments --server=${{ env.octopusUrl }} --space="${{ env.octopusSpace }}" --apiKey=${{ secrets.OCTOPUS_API_KEY }}
+          octo create-environment --name="${{ env.branch }}" --server=${{ env.octopusUrl }} --space="${{ env.octopusSpace }}" --apiKey=${{ secrets.OCTOPUS_API_KEY }}
+          echo "##[set-output name=environment;]$(echo "${{ env.branch }}")"
+
+      - name: Register infrastructure with Octopus 
+        uses: Amadevus/pwsh-script@v2
+        env:
+          branch: "${{steps.extract_branch.outputs.branch}}"
+        with:
+        script: |
+          # Define working variables
+          $octopusURL = "${{ env.octopusUrl }}"
+          $octopusAPIKey = "${{ secrets.OCTOPUS_API_KEY }}"
+          $header = @{ "X-Octopus-ApiKey" = $octopusAPIKey }
+          $spaceName = "${{ env.octopusSpace }}"
+          $azureServicePrincipalName = "Azure Product Sandbox"
+          $azureResourceGroupName = "${{ steps.create-resource-group.outputs.resourceGroup }}"
+          $environmentNames = @("${{ steps.create-environment.outputs.environment }}")
+          $roles = @("cattle-not-pets-web-server")
+          $environmentIds = @()
+          $azureWebAppName = "cattle-not-pets-web-${{ steps.create-environment.outputs.environment }}"
+
+          # Get space
+          $space = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/spaces/all" -Headers $header) | Where-Object {$_.Name -eq $spaceName}
+
+          # Get Azure account
+          $azureAccount = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/$($space.Id)/accounts/all" -Headers $header) | Where-Object {$_.Name -eq $azureServicePrincipalName}
+
+          # Get Environments
+          $environments = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/$($space.Id)/environments/all" -Headers $header) | Where-Object {$environmentNames -contains $_.Name}
+          foreach ($environment in $environments)
+          {
+              $environmentIds += $environment.Id
+          }
+
+          # Build json payload
+          $jsonPayload = @{
+              Name = $azureWebAppName
+              EndPoint = @{
+                  CommunicationStyle = "AzureWebApp"
+                  AccountId = $azureAccount.Id
+                  ResourceGroupName = $azureResourceGroupName
+                  WebAppName = $azureWebAppName
+              }
+              Roles = $roles
+              EnvironmentIds = $environmentIds
+          }
+
+          # Register the target to Octopus Deploy
+          Invoke-RestMethod -Method Post -Uri "$octopusURL/api/$($space.Id)/machines" -Headers $header -Body ($jsonPayload | ConvertTo-Json -Depth 10)
 
 
