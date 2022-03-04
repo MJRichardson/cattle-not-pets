@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 env: 
-  - octopusUrl: "https://michrich.octopus.app/"
-  - octopusSpace: "Dynamic Infra"
+  octopusUrl: "https://michrich.octopus.app/"
+  octopusSpace: "Dynamic Infra"
 
 jobs:
   create-azure-infrastructure:
