@@ -76,46 +76,47 @@ jobs:
         uses: Amadevus/pwsh-script@v2
         env:
           branch: "${{steps.extract_branch.outputs.branch}}"
-        script: |
-          # Define working variables
-          $octopusURL = "${{ env.octopusUrl }}"
-          $octopusAPIKey = "${{ secrets.OCTOPUS_API_KEY }}"
-          $header = @{ "X-Octopus-ApiKey" = $octopusAPIKey }
-          $spaceName = "${{ env.octopusSpace }}"
-          $azureServicePrincipalName = "Azure Product Sandbox"
-          $azureResourceGroupName = "${{ steps.create-resource-group.outputs.resourceGroup }}"
-          $environmentNames = @("${{ steps.create-environment.outputs.environment }}")
-          $roles = @("cattle-not-pets-web-server")
-          $environmentIds = @()
-          $azureWebAppName = "cattle-not-pets-web-${{ steps.create-environment.outputs.environment }}"
+        with:
+          script: |
+            # Define working variables
+            $octopusURL = "${{ env.octopusUrl }}"
+            $octopusAPIKey = "${{ secrets.OCTOPUS_API_KEY }}"
+            $header = @{ "X-Octopus-ApiKey" = $octopusAPIKey }
+            $spaceName = "${{ env.octopusSpace }}"
+            $azureServicePrincipalName = "Azure Product Sandbox"
+            $azureResourceGroupName = "${{ steps.create-resource-group.outputs.resourceGroup }}"
+            $environmentNames = @("${{ steps.create-environment.outputs.environment }}")
+            $roles = @("cattle-not-pets-web-server")
+            $environmentIds = @()
+            $azureWebAppName = "cattle-not-pets-web-${{ steps.create-environment.outputs.environment }}"
 
-          # Get space
-          $space = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/spaces/all" -Headers $header) | Where-Object {$_.Name -eq $spaceName}
+            # Get space
+            $space = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/spaces/all" -Headers $header) | Where-Object {$_.Name -eq $spaceName}
 
-          # Get Azure account
-          $azureAccount = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/$($space.Id)/accounts/all" -Headers $header) | Where-Object {$_.Name -eq $azureServicePrincipalName}
+            # Get Azure account
+            $azureAccount = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/$($space.Id)/accounts/all" -Headers $header) | Where-Object {$_.Name -eq $azureServicePrincipalName}
 
-          # Get Environments
-          $environments = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/$($space.Id)/environments/all" -Headers $header) | Where-Object {$environmentNames -contains $_.Name}
-          foreach ($environment in $environments)
-          {
-              $environmentIds += $environment.Id
-          }
+            # Get Environments
+            $environments = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/$($space.Id)/environments/all" -Headers $header) | Where-Object {$environmentNames -contains $_.Name}
+            foreach ($environment in $environments)
+            {
+                $environmentIds += $environment.Id
+            }
 
-          # Build json payload
-          $jsonPayload = @{
-              Name = $azureWebAppName
-              EndPoint = @{
-                  CommunicationStyle = "AzureWebApp"
-                  AccountId = $azureAccount.Id
-                  ResourceGroupName = $azureResourceGroupName
-                  WebAppName = $azureWebAppName
-              }
-              Roles = $roles
-              EnvironmentIds = $environmentIds
-          }
+            # Build json payload
+            $jsonPayload = @{
+                Name = $azureWebAppName
+                EndPoint = @{
+                    CommunicationStyle = "AzureWebApp"
+                    AccountId = $azureAccount.Id
+                    ResourceGroupName = $azureResourceGroupName
+                    WebAppName = $azureWebAppName
+                }
+                Roles = $roles
+                EnvironmentIds = $environmentIds
+            }
 
-          # Register the target to Octopus Deploy
-          Invoke-RestMethod -Method Post -Uri "$octopusURL/api/$($space.Id)/machines" -Headers $header -Body ($jsonPayload | ConvertTo-Json -Depth 10)
+            # Register the target to Octopus Deploy
+            Invoke-RestMethod -Method Post -Uri "$octopusURL/api/$($space.Id)/machines" -Headers $header -Body ($jsonPayload | ConvertTo-Json -Depth 10)
 
 
