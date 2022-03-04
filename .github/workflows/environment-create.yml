@@ -76,7 +76,6 @@ jobs:
         uses: Amadevus/pwsh-script@v2
         env:
           branch: "${{steps.extract_branch.outputs.branch}}"
-        with:
         script: |
           # Define working variables
           $octopusURL = "${{ env.octopusUrl }}"
