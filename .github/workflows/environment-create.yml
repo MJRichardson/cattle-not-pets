@@ -43,7 +43,7 @@ jobs:
             if [ $(az group exists --name $RESOURCEGROUPNAME) = false ]; then
               az group create --name $RESOURCEGROUPNAME --location "$LOCATION"
             fi
-            echo "##[set-output name=resourceGroup;]$(echo '$RESOURCEGROUPNAME')"
+            echo "##[set-output name=resourceGroup;]$(echo "$RESOURCEGROUPNAME")"
             
       - name: Replace parameters file
         uses: microsoft/variable-substitution@v1 
