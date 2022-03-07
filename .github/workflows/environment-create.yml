@@ -69,7 +69,7 @@ jobs:
           branch: "${{steps.extract_branch.outputs.branch}}"
         run: |  
           octo list-environments --server=${{ env.octopusUrl }} --space="${{ env.octopusSpace }}" --apiKey=${{ secrets.OCTOPUS_API_KEY }}
-          octo create-environment --name="${{ env.branch }}" --server=${{ env.octopusUrl }} --space="${{ env.octopusSpace }}" --apiKey=${{ secrets.OCTOPUS_API_KEY }}
+          octo create-environment --name="${{ env.branch }}" --ignoreIfExists --server=${{ env.octopusUrl }} --space="${{ env.octopusSpace }}" --apiKey=${{ secrets.OCTOPUS_API_KEY }}
           echo "##[set-output name=environment;]$(echo "${{ env.branch }}")"
 
       - name: Register infrastructure with Octopus 
