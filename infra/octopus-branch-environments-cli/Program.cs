@@ -13,16 +13,17 @@ var repository = new OctopusRepository(endpoint);
 var client = new OctopusClient(endpoint);
 
 var commandLineArgs = Environment.GetCommandLineArgs();
+var command = commandLineArgs[1];
 
 // Get space
 var space = repository.Spaces.FindByName(spaceName);
 var repositoryForSpace = client.ForSpace(space);
 
-switch (commandLineArgs.First().ToLower())
+switch (command)
 {
     case "create": Commands.CreateBranchEnvironment(repositoryForSpace, branch, projectName);
         break;
-    default: throw new Exception($"Unknown command: {commandLineArgs.First()}");
+    default: throw new Exception($"Unknown command: {command}");
 }
 
 
