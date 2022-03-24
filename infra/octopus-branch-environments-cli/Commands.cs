@@ -12,86 +12,80 @@ public class Commands
         var lifecycleName = Naming.LifecycleName(branch, projectName);
         var channelName = Naming.ChannelName(branch);
 
-        try
+
+        // Get project
+        Console.WriteLine($"Finding project {projectName}");
+        var project = repositoryForSpace.Projects.FindByName(projectName);
+        if (project == null)
         {
+            throw new Exception($"Could not find project {projectName}");
+        }
 
-            // Get project
-            Console.WriteLine($"Finding project {projectName}");
-            var project = repositoryForSpace.Projects.FindByName(projectName);
-            if (project == null)
-            {
-                throw new Exception($"Could not find project {projectName}");
-            }
+        // Check for existing environment
+        var environment = repositoryForSpace.Environments.FindByName(environmentName);
+        if (environment != null)
+        {
+            Console.WriteLine("Environment '{0}' already exists. Nothing to create :)", environmentName);
+        }
+        else
+        {
+            Console.WriteLine("Creating environment '{0}'", environmentName);
+            var environmentResource = new EnvironmentResource { Name = environmentName };
+            environment = repositoryForSpace.Environments.Create(environmentResource);
+            Console.WriteLine("EnvironmentId: {0}", environment.Id);
 
-            // Check for existing environment
-            var environment = repositoryForSpace.Environments.FindByName(environmentName);
-            if (environment != null)
+            // Create lifecycle
+            Console.WriteLine($"Creating lifecycle {lifecycleName}");
+            var lifecycle = repositoryForSpace.Lifecycles.FindByName(lifecycleName);
+            if (lifecycle != null)
             {
-                Console.WriteLine("Environment '{0}' already exists. Nothing to create :)", environmentName);
+                Console.WriteLine($"Lifecycle {lifecycle.Name} already exists");
             }
             else
             {
-                Console.WriteLine("Creating environment '{0}'", environmentName);
-                var environmentResource = new EnvironmentResource { Name = environmentName };
-                environment = repositoryForSpace.Environments.Create(environmentResource);
-                Console.WriteLine("EnvironmentId: {0}", environment.Id);
-
-                // Create lifecycle
-                Console.WriteLine($"Creating lifecycle {lifecycleName}");
-                var lifecycle = repositoryForSpace.Lifecycles.FindByName(lifecycleName);
-                if (lifecycle != null)
+                lifecycle = new LifecycleResource
                 {
-                    Console.WriteLine($"Lifecycle {lifecycle.Name} already exists");
+                    Name = lifecycleName,
+                    Phases =
+                    {
+                        new PhaseResource
+                        {
+                            Name = environmentName,
+                            AutomaticDeploymentTargets = new ReferenceCollection { environment.Id }
+                        }
+                    }
+                };
+
+                lifecycle = repositoryForSpace.Lifecycles.Create(lifecycle);
+
+                // Create channel using lifecycle
+                Console.WriteLine($"Creating channel {channelName}");
+                var channel = repositoryForSpace.Channels.FindByName(project, channelName);
+
+                if (channel != null)
+                {
+                    Console.WriteLine("Channel already exists");
                 }
                 else
                 {
-                    lifecycle = new LifecycleResource
+                    channel = new ChannelResource
                     {
-                        Name = lifecycleName,
-                        Phases =
+                        Name = channelName,
+                        ProjectId = project.Id,
+                        LifecycleId = lifecycle.Id,
+                        Rules = new List<ChannelVersionRuleResource>
                         {
-                            new PhaseResource
+                            new()
                             {
-                                AutomaticDeploymentTargets = new ReferenceCollection { environment.Id }
+                                Tag = branch
                             }
                         }
                     };
 
-                    lifecycle = repositoryForSpace.Lifecycles.Create(lifecycle);
-
-                    // Create channel using lifecycle
-                    Console.WriteLine($"Creating channel {channelName}");
-                    var channel = repositoryForSpace.Channels.FindByName(project, channelName);
-
-                    if (channel != null)
-                    {
-                        Console.WriteLine("Channel already exists");
-                    }
-                    else
-                    {
-                        channel = new ChannelResource
-                        {
-                            Name = channelName,
-                            ProjectId = project.Id,
-                            LifecycleId = lifecycle.Id,
-                            Rules = new List<ChannelVersionRuleResource>
-                            {
-                                new()
-                                {
-                                    Tag = branch
-                                }
-                            }
-                        };
-
-                        repositoryForSpace.Channels.Create(channel);
-                    }
-
+                    repositoryForSpace.Channels.Create(channel);
                 }
+
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
         }
     }
 }
