@@ -23,6 +23,8 @@ switch (command)
 {
     case "create": Commands.CreateBranchEnvironment(repositoryForSpace, branch, projectName);
         break;
+    case "destroy": Commands.DestroyBranchEnvironment(repositoryForSpace, branch, projectName);
+        break;
     default: throw new Exception($"Unknown command: {command}");
 }
 

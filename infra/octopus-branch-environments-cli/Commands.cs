@@ -12,7 +12,6 @@ public class Commands
         var lifecycleName = Naming.LifecycleName(branch, projectName);
         var channelName = Naming.ChannelName(branch);
 
-
         // Get project
         Console.WriteLine($"Finding project {projectName}");
         var project = repositoryForSpace.Projects.FindByName(projectName);
@@ -88,8 +87,60 @@ public class Commands
 
                     repositoryForSpace.Channels.Create(channel);
                 }
-
             }
+        }
+    }
+
+    internal static void DestroyBranchEnvironment(IOctopusSpaceRepository repositoryForSpace,
+        string branch, string projectName)
+    {
+
+        var environmentName = Naming.EnvironmentName(branch, projectName);
+        var lifecycleName = Naming.LifecycleName(branch, projectName);
+        var channelName = Naming.ChannelName(branch);
+
+        // Get project
+        Console.WriteLine($"Finding project {projectName}");
+        var project = repositoryForSpace.Projects.FindByName(projectName);
+        if (project == null)
+        {
+            throw new Exception($"Could not find project {projectName}");
+        }
+        
+        // Delete the channel first
+        var channel = repositoryForSpace.Channels.FindByName(project, channelName);
+        if (channel != null)
+        {
+            repositoryForSpace.Channels.Delete(channel);
+            Console.WriteLine($"Channel {channelName} deleted");
+        }
+        else
+        {
+            Console.WriteLine($"Channel {channelName} was not found");
+        }
+        
+        // Then the lifecycle
+        var lifecycle = repositoryForSpace.Lifecycles.FindByName(lifecycleName);
+        if (lifecycle != null)
+        {
+            repositoryForSpace.Lifecycles.Delete(lifecycle);
+            Console.WriteLine($"Lifecycle {lifecycleName} deleted");
+        }
+        else
+        {
+            Console.WriteLine($"Lifecycle {lifecycleName} was not found");
+        }
+
+        // And finally delete the environment
+        var environment = repositoryForSpace.Environments.FindByName(environmentName);
+        if (environment != null)
+        {
+            repositoryForSpace.Environments.Delete(environment);
+            Console.WriteLine($"Environment {environmentName} deleted");
+        }
+        else
+        {
+            Console.WriteLine($"Environment {environmentName} was not found");
         }
     }
 }
