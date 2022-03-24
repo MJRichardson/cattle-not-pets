@@ -74,7 +74,8 @@ public class Commands
                     {
                         Name = channelName,
                         ProjectId = project.Id,
-                        LifecycleId = lifecycle.Id,
+                        LifecycleId = lifecycle.Id
+                        /* can't create rule without including each step/package
                         Rules = new List<ChannelVersionRuleResource>
                         {
                             new()
@@ -82,6 +83,7 @@ public class Commands
                                 Tag = branch
                             }
                         }
+                        */
                     };
 
                     repositoryForSpace.Channels.Create(channel);
