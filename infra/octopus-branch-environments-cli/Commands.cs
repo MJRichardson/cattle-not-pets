@@ -53,7 +53,8 @@ public class Commands
                             Name = environmentName,
                             AutomaticDeploymentTargets = new ReferenceCollection { environment.Id }
                         }
-                    }
+                    },
+                    ReleaseRetentionPolicy = new RetentionPeriod(30, RetentionUnit.Days)
                 };
 
                 lifecycle = repositoryForSpace.Lifecycles.Create(lifecycle);
