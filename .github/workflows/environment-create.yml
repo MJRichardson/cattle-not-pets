@@ -63,6 +63,7 @@ jobs:
           dotnet-version: '6.0.x' 
 
       - name: Create Octopus branch environment 
+        id: create-environment
         env:
           GIT_BRANCH: "${{steps.extract_branch.outputs.branch}}"
           OCTOPUS_URL: "${{ env.octopusUrl}}" 

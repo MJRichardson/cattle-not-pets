@@ -33,6 +33,7 @@ public class Commands
             var environmentResource = new EnvironmentResource { Name = environmentName };
             environment = repositoryForSpace.Environments.Create(environmentResource);
             Console.WriteLine("EnvironmentId: {0}", environment.Id);
+            Console.WriteLine($"##[set-output name=environment;]{environment.Name}");
 
             // Create lifecycle
             Console.WriteLine($"Creating lifecycle {lifecycleName}");
