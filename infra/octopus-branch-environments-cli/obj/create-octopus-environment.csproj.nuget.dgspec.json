@@ -1,0 +1,69 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/create-octopus-environment.csproj": {}
+  },
+  "projects": {
+    "/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/create-octopus-environment.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/create-octopus-environment.csproj",
+        "projectName": "create-octopus-environment",
+        "projectPath": "/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/create-octopus-environment.csproj",
+        "packagesPath": "/Users/michrich/.nuget/packages/",
+        "outputPath": "/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/Users/michrich/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Octopus.Client": {
+              "target": "Package",
+              "version": "[11.6.3682, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

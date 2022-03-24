@@ -1,0 +1,17 @@
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/bin/Debug/net6.0/create-octopus-environment
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/bin/Debug/net6.0/create-octopus-environment.deps.json
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/bin/Debug/net6.0/create-octopus-environment.runtimeconfig.json
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/bin/Debug/net6.0/create-octopus-environment.dll
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/bin/Debug/net6.0/ref/create-octopus-environment.dll
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/bin/Debug/net6.0/create-octopus-environment.pdb
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/bin/Debug/net6.0/Octopus.Client.dll
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.csproj.AssemblyReference.cache
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.GeneratedMSBuildEditorConfig.editorconfig
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.AssemblyInfoInputs.cache
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.AssemblyInfo.cs
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.csproj.CoreCompileInputs.cache
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.csproj.CopyComplete
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.dll
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/ref/create-octopus-environment.dll
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.pdb
+/Users/michrich/src/cattle-not-pets/infra/create-octopus-environment/obj/Debug/net6.0/create-octopus-environment.genruntimeconfig.cache
