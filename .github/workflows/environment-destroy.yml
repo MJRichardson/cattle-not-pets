@@ -1,0 +1,92 @@
+# destroy pull-request deployment environment
+name: Destroy environment
+
+on:
+  pull_request:
+    types: [closed]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env: 
+  octopusUrl: "https://michrich.octopus.app/"
+  octopusSpace: "Dynamic Infra"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_HEAD_REF#refs/heads/})"
+        id: extract_branch
+      
+      # login to azure
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x' 
+
+      - name: Destroy Octopus branch environment 
+        id: destroy-environment
+        env:
+          GIT_BRANCH: "${{steps.extract_branch.outputs.branch}}"
+          OCTOPUS_URL: "${{ env.octopusUrl}}" 
+          OCTOPUS_API_KEY: "${{ secrets.OCTOPUS_API_KEY}}" 
+          OCTOPUS_SPACE: "${{ env.octopusSpace}}" 
+        run: |
+          dotnet publish -o ./obe-cli ./infra/octopus-branch-environments-cli
+          ./obe-cli/obe destroy
+
+
+      - name: De-register infrastructure with Octopus 
+        uses: Amadevus/pwsh-script@v2
+        env:
+          branch: "${{steps.extract_branch.outputs.branch}}"
+        with:
+          script: |
+            # Define working variables
+            $octopusURL = "${{ env.octopusUrl }}"
+            $octopusAPIKey = "${{ secrets.OCTOPUS_API_KEY }}"
+            $header = @{ "X-Octopus-ApiKey" = $octopusAPIKey }
+            $spaceName = "${{ env.octopusSpace }}"
+            $azureWebAppName = "cattle-not-pets-web-${{ steps.create-environment.outputs.environment }}"
+
+            # Get space
+            $space = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/spaces/all" -Headers $header) | Where-Object {$_.Name -eq $spaceName}
+
+            # Get machine list
+            $targetList = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/$($space.Id)/machines?name=$azureWebAppName&skip=0&take=1000" -Headers $header) 
+
+            # Loop through list
+            foreach ($target in $targetList.Items)
+            {
+                if ($target.Name -eq $azureWebAppname)
+                {
+                    $targetId = $target.Id
+                    Write-Output "Deleting the target $targetId because the name matches"
+
+                    $deleteResponse = (Invoke-RestMethod "$OctopusUrl/api/$($space.Id)/machines/$targetId" -Headers $header -Method Delete)
+
+                    Write-Host "Delete Response $deleteResponse"
+                    break
+                }
+            }
+
+      - name: Destroy Azure resource group
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
+            az group delete --resource-group $RESOURCEGROUPNAME 
