@@ -87,4 +87,4 @@ jobs:
         with:
           inlineScript: |
             RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.branch-name.outputs.current_branch}}
-            az group delete --resource-group $RESOURCEGROUPNAME 
+            az group delete --name $RESOURCEGROUPNAME --yes
