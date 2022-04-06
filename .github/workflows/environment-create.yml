@@ -87,7 +87,7 @@ jobs:
             $environmentNames = @("${{ steps.create-environment.outputs.environment }}")
             $roles = @("cattle-not-pets-web-server")
             $environmentIds = @()
-            $azureWebAppName = "cattle-not-pets-web-${{ steps.create-environment.outputs.environment }}"
+            $azureWebAppName = "${{ steps.create-environment.outputs.environment }}"
 
             # Get space
             $space = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/spaces/all" -Headers $header) | Where-Object {$_.Name -eq $spaceName}

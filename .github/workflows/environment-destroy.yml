@@ -48,7 +48,7 @@ jobs:
             $octopusAPIKey = "${{ secrets.OCTOPUS_API_KEY }}"
             $header = @{ "X-Octopus-ApiKey" = $octopusAPIKey }
             $spaceName = "${{ env.octopusSpace }}"
-            $azureWebAppName = "cattle-not-pets-web-${{ steps.create-environment.outputs.environment }}"
+            $azureWebAppName = "$cattle not pets - ${{ env.branch }} - app service"
 
             # Get space
             $space = (Invoke-RestMethod -Method Get -Uri "$octopusURL/api/spaces/all" -Headers $header) | Where-Object {$_.Name -eq $spaceName}
