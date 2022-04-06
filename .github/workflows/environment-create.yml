@@ -22,10 +22,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_HEAD_REF#refs/heads/})"
-        id: extract_branch
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.2
       
       # login to azure
       - uses: azure/login@v1
@@ -37,7 +36,7 @@ jobs:
         id: create-resource-group
         with:
           inlineScript: |
-            RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
+            RESOURCEGROUPNAME=michrich-cattle-not-pets-${{steps.branch-name.outputs.current_branch}}
             LOCATION="Australia Southeast"
             if [ $(az group exists --name $RESOURCEGROUPNAME) = false ]; then
               az group create --name $RESOURCEGROUPNAME --location "$LOCATION"
@@ -49,11 +48,11 @@ jobs:
         with:
           files: './infra/azure-rg-params.json'
         env:
-          parameters.branch.value: "${{steps.extract_branch.outputs.branch}}"
+          parameters.branch.value: "${{steps.branch-name.outputs.current_branch}}"
 
       - uses: azure/arm-deploy@v1
         with:
-          resourceGroupName: michrich-cattle-not-pets-${{steps.extract_branch.outputs.branch}}
+          resourceGroupName: michrich-cattle-not-pets-${{steps.branch-name.outputs.current_branch}}
           template: ./infra/azure-rg.json
           parameters: ./infra/azure-rg-params.json
 
@@ -64,7 +63,7 @@ jobs:
       - name: Create Octopus branch environment 
         id: create-environment
         env:
-          GIT_BRANCH: "${{steps.extract_branch.outputs.branch}}"
+          GIT_BRANCH: "${{steps.branch-name.outputs.current_branch}}"
           OCTOPUS_URL: "${{ env.octopusUrl}}" 
           OCTOPUS_API_KEY: "${{ secrets.OCTOPUS_API_KEY}}" 
           OCTOPUS_SPACE: "${{ env.octopusSpace}}" 
@@ -75,7 +74,7 @@ jobs:
       - name: Register infrastructure with Octopus 
         uses: Amadevus/pwsh-script@v2
         env:
-          branch: "${{steps.extract_branch.outputs.branch}}"
+          branch: "${{steps.branch-name.outputs.current_branch}}"
         with:
           script: |
             # Define working variables
